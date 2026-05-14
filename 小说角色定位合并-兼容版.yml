@@ -1,0 +1,815 @@
+---
+app:
+  description: 兼容版：输入小说 ID 和章节范围，逐章识别角色，最终统一合并角色定位。
+  icon: "\U0001F916"
+  icon_background: "#FFEAD5"
+  mode: workflow
+  name: 小说角色定位合并-兼容版
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: 
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.15@725407927b04e236212083d20e92830d60fa944e42cd357ef6902c160414f6f1
+    version: 
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - ".JPG"
+      - ".JPEG"
+      - ".PNG"
+      - ".GIF"
+      - ".WEBP"
+      - ".SVG"
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 600
+        batch_count_limit: 5
+        file_size_limit: 600
+        image_file_batch_limit: 10
+        image_file_size_limit: 600
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 600
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: 2000000000001-source-2000000000002-target
+      source: '2000000000001'
+      sourceHandle: source
+      target: '2000000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: iteration
+      id: 2000000000002-source-2000000000003-target
+      source: '2000000000002'
+      sourceHandle: source
+      target: '2000000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: true
+        isInLoop: false
+        sourceType: iteration-start
+        targetType: tool
+        iteration_id: '2000000000003'
+      id: 2000000000003start-source-2000000000004-target
+      source: 2000000000003start
+      sourceHandle: source
+      target: '2000000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+        iteration_id: '2000000000003'
+      id: 2000000000004-source-2000000000005-target
+      source: '2000000000004'
+      sourceHandle: source
+      target: '2000000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+        iteration_id: '2000000000003'
+      id: 2000000000005-source-2000000000006-target
+      source: '2000000000005'
+      sourceHandle: source
+      target: '2000000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: iteration
+        targetType: llm
+      id: 2000000000003-source-2000000000007-target
+      source: '2000000000003'
+      sourceHandle: source
+      target: '2000000000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 2000000000007-source-2000000000008-target
+      source: '2000000000007'
+      sourceHandle: source
+      target: '2000000000008'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 2000000000008-source-2000000000009-target
+      source: '2000000000008'
+      sourceHandle: source
+      target: '2000000000009'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 用户输入
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: 书籍id
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: book_id
+        - default: ''
+          hint: ''
+          label: 开始章节sortid
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: start_chapter_index
+        - default: ''
+          hint: ''
+          label: 结束章节sortid
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: end_chapter_index
+      height: 156
+      id: '2000000000001'
+      position:
+        x: 80
+        y: 300
+      positionAbsolute:
+        x: 80
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        title: 章节范围规范
+        type: code
+        code: |
+          def main(book_id: int, start_chapter_index: int, end_chapter_index: int):
+              try:
+                  book_id = int(book_id)
+                  start = int(start_chapter_index)
+                  end = int(end_chapter_index)
+              except Exception:
+                  return {
+                      "chapter_numbers": [],
+                      "range_status": "error: book_id、start_chapter_index、end_chapter_index 必须是数字",
+                  }
+
+              if book_id <= 0:
+                  return {
+                      "chapter_numbers": [],
+                      "range_status": "error: book_id 必须大于 0",
+                  }
+
+              if start <= 0 or end <= 0:
+                  return {
+                      "chapter_numbers": [],
+                      "range_status": "error: 章节 sortid 必须大于 0",
+                  }
+
+              if end < start:
+                  end = start
+
+              total = end - start + 1
+              if total > 100:
+                  return {
+                      "chapter_numbers": [],
+                      "range_status": "error: 章节范围最多支持 100 章，请缩小 start_chapter_index 和 end_chapter_index 的范围",
+                  }
+
+              return {
+                  "chapter_numbers": list(range(start, end + 1)),
+                  "range_status": "ok",
+              }
+        code_language: python3
+        variables:
+        - value_selector:
+          - '2000000000001'
+          - book_id
+          value_type: number
+          variable: book_id
+        - value_selector:
+          - '2000000000001'
+          - start_chapter_index
+          value_type: number
+          variable: start_chapter_index
+        - value_selector:
+          - '2000000000001'
+          - end_chapter_index
+          value_type: number
+          variable: end_chapter_index
+        outputs:
+          chapter_numbers:
+            children: 
+            type: array[number]
+          range_status:
+            children: 
+            type: string
+      height: 52
+      id: '2000000000002'
+      position:
+        x: 380
+        y: 315
+      positionAbsolute:
+        x: 380
+        y: 315
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        title: 逐章分析
+        type: iteration
+        error_handle_mode: terminated
+        flatten_output: true
+        height: 340
+        is_parallel: false
+        iterator_input_type: array[number]
+        iterator_selector:
+        - '2000000000002'
+        - chapter_numbers
+        output_selector:
+        - '2000000000006'
+        - chapter_result
+        output_type: array[string]
+        parallel_nums: 10
+        start_node_id: 2000000000003start
+        width: 1120
+      height: 340
+      id: '2000000000003'
+      position:
+        x: 690
+        y: 260
+      positionAbsolute:
+        x: 690
+        y: 260
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 1120
+      zIndex: 1
+    - data:
+        selected: false
+        title: ''
+        type: iteration-start
+        desc: ''
+        isInIteration: true
+      height: 48
+      id: 2000000000003start
+      position:
+        x: 24
+        y: 68
+      positionAbsolute:
+        x: 714
+        y: 328
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-iteration-start
+      width: 44
+      parentId: '2000000000003'
+      draggable: false
+      selectable: false
+      zIndex: 1002
+    - data:
+        selected: false
+        title: 获取书库书籍章节内容
+        type: tool
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: 
+          default: 
+          form: form
+          human_description:
+            en_US: 书籍ID
+            ja_JP: 书籍ID
+            pt_BR: 书籍ID
+            zh_Hans: 书籍ID
+          label:
+            en_US: book_id
+            ja_JP: book_id
+            pt_BR: book_id
+            zh_Hans: book_id
+          llm_description: 书籍ID
+          max: 
+          min: 
+          name: book_id
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: 
+          required: true
+          scope: 
+          template: 
+          type: number
+        - auto_generate: 
+          default: 
+          form: form
+          human_description:
+            en_US: 起始章节（从1开始）
+            ja_JP: 起始章节（从1开始）
+            pt_BR: 起始章节（从1开始）
+            zh_Hans: 起始章节（从1开始）
+          label:
+            en_US: start_chapter
+            ja_JP: start_chapter
+            pt_BR: start_chapter
+            zh_Hans: start_chapter
+          llm_description: 起始章节（从1开始）
+          max: 
+          min: 
+          name: start_chapter
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: 
+          required: true
+          scope: 
+          template: 
+          type: number
+        - auto_generate: 
+          default: 
+          form: form
+          human_description:
+            en_US: 结束章节
+            ja_JP: 结束章节
+            pt_BR: 结束章节
+            zh_Hans: 结束章节
+          label:
+            en_US: end_chapter
+            ja_JP: end_chapter
+            pt_BR: end_chapter
+            zh_Hans: end_chapter
+          llm_description: 结束章节
+          max: 
+          min: 
+          name: end_chapter
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: 
+          required: true
+          scope: 
+          template: 
+          type: number
+        - auto_generate: 
+          default: 
+          form: llm
+          human_description:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          label:
+            en_US: item_type
+            ja_JP: item_type
+            pt_BR: item_type
+            zh_Hans: item_type
+          llm_description: ''
+          max: 
+          min: 
+          name: item_type
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: 
+          required: false
+          scope: 
+          template: 
+          type: number
+        provider_icon:
+          background: "#E6F4D7"
+          content: book
+        provider_id: 1f1d0a7c-eedb-446e-be0e-a887b71cd1db
+        provider_name: 获取书库书籍章节内容
+        provider_type: workflow
+        tool_description: 根据书籍ID、起始章节和结束张杰获取书库书籍相应章节的内容
+        tool_label: 获取书库书籍章节内容
+        tool_name: get_book_chapter_content
+        tool_node_version: '2'
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '2000000000003'
+        params:
+          book_id: ''
+          end_chapter: ''
+          item_type: ''
+          start_chapter: ''
+        tool_configurations:
+          book_id:
+            type: variable
+            value:
+            - '2000000000001'
+            - book_id
+          start_chapter:
+            type: variable
+            value:
+            - '2000000000003'
+            - item
+          end_chapter:
+            type: variable
+            value:
+            - '2000000000003'
+            - item
+        tool_parameters:
+          item_type:
+            type: constant
+            value: 1
+      height: 140
+      id: '2000000000004'
+      position:
+        x: 820
+        y: 328
+      positionAbsolute:
+        x: 820
+        y: 328
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      parentId: '2000000000003'
+      zIndex: 1002
+    - data:
+        selected: false
+        title: 单章角色分析
+        type: llm
+        context:
+          enabled: false
+          variable_selector: []
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '2000000000003'
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: single-system-prompt
+          role: system
+          text: |-
+            你是小说角色识别与角色定位分析专家。你需要根据单章小说内容，识别本章中实际出现或被明确提及的角色，并判断每个角色在全书叙事中的阶段性定位。
+
+            角色定位只能从以下三类选择：
+            1. 核心角色：主角、主要反派、主要同伴、主要对手、长期驱动主线冲突或主线成长的人物。
+            2. 重要角色：对本章或近期情节有明显推动作用，和核心角色存在明确关系，参与关键事件、冲突、任务、势力关系或重要信息传递的人物。
+            3. 边缘角色：短暂出场、背景人物、工具性人物、路人、只被轻微提及，或目前缺少证据证明其重要性的人物。
+
+            判断要求：
+            - 只根据章节原文判断，不得脑补后续剧情。
+            - 如果证据不足，优先判为较低定位。
+            - 同一个角色的不同称呼、身份称号、外号可以写入 aliases。
+            - 判断依据必须来自原文，可概括但不能编造。
+            - 输出必须是合法 JSON，不要输出 Markdown，不要输出解释性文字。
+
+            输出 JSON 结构：
+            {
+              "chapter_index": 章节编号,
+              "chapter_title": "章节标题",
+              "roles": [
+                {
+                  "name": "标准角色名",
+                  "aliases": ["别名或称谓"],
+                  "position": "核心角色 | 重要角色 | 边缘角色",
+                  "evidence": [
+                    {
+                      "text": "原文依据或高度贴近原文的简短概括",
+                      "reason": "为什么该依据支持这个定位"
+                    }
+                  ]
+                }
+              ]
+            }
+        - id: single-user-prompt
+          role: user
+          text: |-
+            章节编号：{{#2000000000003.item#}}
+
+            章节内容：
+            {{#2000000000004.text#}}
+        vision:
+          enabled: false
+      height: 88
+      id: '2000000000005'
+      position:
+        x: 1100
+        y: 328
+      positionAbsolute:
+        x: 1100
+        y: 328
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      parentId: '2000000000003'
+      zIndex: 1002
+    - data:
+        selected: false
+        title: 解析单章 JSON
+        type: code
+        code: |
+          def main(text: str, current_chapter: int):
+              import json
+              import re
+
+              raw = (text or "").strip()
+              raw = re.sub(r"^```(?:json)?", "", raw).strip()
+              raw = re.sub(r"```$", "", raw).strip()
+
+              try:
+                  data = json.loads(raw)
+              except Exception:
+                  data = {
+                      "chapter_index": int(current_chapter),
+                      "chapter_title": "",
+                      "roles": [],
+                      "parse_error": True,
+                      "raw_text": raw[:1000],
+                  }
+
+              if not isinstance(data, dict):
+                  data = {
+                      "chapter_index": int(current_chapter),
+                      "chapter_title": "",
+                      "roles": [],
+                  }
+
+              if not isinstance(data.get("roles"), list):
+                  data["roles"] = []
+
+              return {
+                  "chapter_result": json.dumps(data, ensure_ascii=False),
+              }
+        code_language: python3
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '2000000000003'
+        variables:
+        - value_selector:
+          - '2000000000005'
+          - text
+          value_type: string
+          variable: text
+        - value_selector:
+          - '2000000000003'
+          - item
+          value_type: number
+          variable: current_chapter
+        outputs:
+          chapter_result:
+            children: 
+            type: string
+      height: 52
+      id: '2000000000006'
+      position:
+        x: 1380
+        y: 328
+      positionAbsolute:
+        x: 1380
+        y: 328
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      parentId: '2000000000003'
+      zIndex: 1002
+    - data:
+        selected: false
+        title: 最终合并角色结果
+        type: llm
+        context:
+          enabled: false
+          variable_selector: []
+        model:
+          completion_params:
+            temperature: 0.1
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: merge-system-prompt
+          role: system
+          text: |-
+            你是小说角色表合并专家。你会收到一个数组，数组中的每一项都是某一章的角色分析 JSON 字符串。请把所有章节结果合并成一份完整角色清单。
+
+            合并规则：
+            1. 角色去重：同一角色的本名、外号、尊称、身份称号可以合并，但必须有文本证据或上下文强关联。不能仅凭同姓、同职业、同称号合并。
+            2. 角色定位优先级：核心角色 > 重要角色 > 边缘角色。
+            3. 如果同一角色在不同章节定位不同，取最高定位，并用依据说明原因。
+            4. 每个角色最多保留 5 条最强判断依据，优先保留能体现主线推动、关键关系、关键行动、反复出现的证据。
+            5. 最终只输出以下字段：角色名、角色定位、判断依据。
+            6. 输出必须是合法 JSON 数组，不要输出 Markdown，不要输出解释性文字。
+
+            最终输出结构：
+            [
+              {
+                "角色名": "角色名称",
+                "角色定位": "核心角色 | 重要角色 | 边缘角色",
+                "判断依据": ["依据1", "依据2"]
+              }
+            ]
+        - id: merge-user-prompt
+          role: user
+          text: |-
+            章节范围状态：{{#2000000000002.range_status#}}
+
+            逐章分析结果数组：
+            {{#2000000000003.output#}}
+        vision:
+          enabled: false
+      height: 88
+      id: '2000000000007'
+      position:
+        x: 1900
+        y: 315
+      positionAbsolute:
+        x: 1900
+        y: 315
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        title: 最终格式化输出
+        type: code
+        code: |
+          def main(text: str, range_status: str):
+              import json
+              import re
+
+              if range_status != "ok":
+                  return {"result": range_status}
+
+              raw = (text or "").strip()
+              raw = re.sub(r"^```(?:json)?", "", raw).strip()
+              raw = re.sub(r"```$", "", raw).strip()
+
+              try:
+                  data = json.loads(raw)
+              except Exception:
+                  return {"result": raw}
+
+              if not isinstance(data, list):
+                  return {"result": json.dumps(data, ensure_ascii=False, indent=2)}
+
+              result = []
+              for item in data:
+                  if not isinstance(item, dict):
+                      continue
+                  result.append({
+                      "角色名": item.get("角色名") or item.get("name") or "",
+                      "角色定位": item.get("角色定位") or item.get("position") or "边缘角色",
+                      "判断依据": item.get("判断依据") or item.get("evidence") or [],
+                  })
+
+              rank = {"核心角色": 0, "重要角色": 1, "边缘角色": 2}
+              result.sort(key=lambda x: (rank.get(x["角色定位"], 9), x["角色名"]))
+              return {"result": json.dumps(result, ensure_ascii=False, indent=2)}
+        code_language: python3
+        variables:
+        - value_selector:
+          - '2000000000007'
+          - text
+          value_type: string
+          variable: text
+        - value_selector:
+          - '2000000000002'
+          - range_status
+          value_type: string
+          variable: range_status
+        outputs:
+          result:
+            children: 
+            type: string
+      height: 52
+      id: '2000000000008'
+      position:
+        x: 2200
+        y: 315
+      positionAbsolute:
+        x: 2200
+        y: 315
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        selected: false
+        title: 输出
+        type: end
+        outputs:
+        - value_selector:
+          - '2000000000008'
+          - result
+          value_type: string
+          variable: result
+      height: 88
+      id: '2000000000009'
+      position:
+        x: 2500
+        y: 315
+      positionAbsolute:
+        x: 2500
+        y: 315
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.5
+  rag_pipeline_variables: []

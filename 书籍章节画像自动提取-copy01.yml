@@ -1,0 +1,601 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: 书籍章节画像自动提取-copy01
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/deepseek:0.0.15@725407927b04e236212083d20e92830d60fa944e42cd357ef6902c160414f6f1
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 600
+        batch_count_limit: 5
+        file_size_limit: 600
+        image_file_batch_limit: 10
+        image_file_size_limit: 600
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 600
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: 1778489369227-source-1778489730470-target
+      source: '1778489369227'
+      sourceHandle: source
+      target: '1778489730470'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: iteration
+      id: 1778489730470-source-1778493298135-target
+      source: '1778489730470'
+      sourceHandle: source
+      target: '1778493298135'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1778493298135'
+        sourceType: iteration-start
+        targetType: tool
+      id: 1778493298135start-source-1778493422225-target
+      source: 1778493298135start
+      sourceHandle: source
+      target: '1778493422225'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1778493298135'
+        sourceType: tool
+        targetType: llm
+      id: 1778493422225-source-1778493448729-target
+      source: '1778493422225'
+      sourceHandle: source
+      target: '1778493448729'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1778493298135'
+        sourceType: llm
+        targetType: code
+      id: 1778493448729-source-1778493979402-target
+      source: '1778493448729'
+      sourceHandle: source
+      target: '1778493979402'
+      targetHandle: target
+      type: custom
+      zIndex: 1002
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: iteration
+        targetType: end
+      id: 1778493298135-source-1778494023141-target
+      source: '1778493298135'
+      sourceHandle: source
+      target: '1778494023141'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: 用户输入
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: 书籍id
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: book_id
+        - default: ''
+          hint: ''
+          label: 开始章节sortid
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: start_chapter_index
+        - default: ''
+          hint: ''
+          label: 结束章节sortid
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: number
+          variable: end_chapter_index
+        - default: ''
+          hint: ''
+          label: 角色名
+          max_length: 48
+          options: []
+          placeholder: ''
+          required: true
+          type: text-input
+          variable: role_name
+      height: 187
+      id: '1778489369227'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "\ndef main(start_chapter_index: int, end_chapter_index: int):\n   \
+          \ if end_chapter_index < start_chapter_index:\n        end_chapter_index\
+          \ = start_chapter_index\n    arr = list(range(start_chapter_index, end_chapter_index+1))\n\
+          \    return {\n        \"start_chapter_index\": start_chapter_index,\n \
+          \       \"end_chapter_index\": end_chapter_index,\n        \"arr\" : arr\n\
+          \    }\n"
+        code_language: python3
+        outputs:
+          arr:
+            children: null
+            type: array[number]
+          end_chapter_index:
+            children: null
+            type: number
+          start_chapter_index:
+            children: null
+            type: number
+        selected: false
+        title: 章节sort规范
+        type: code
+        variables:
+        - value_selector:
+          - '1778489369227'
+          - start_chapter_index
+          value_type: number
+          variable: start_chapter_index
+        - value_selector:
+          - '1778489369227'
+          - end_chapter_index
+          value_type: number
+          variable: end_chapter_index
+      height: 52
+      id: '1778489730470'
+      position:
+        x: 387
+        y: 303
+      positionAbsolute:
+        x: 387
+        y: 303
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        error_handle_mode: terminated
+        flatten_output: true
+        height: 340
+        is_parallel: false
+        iterator_input_type: array[number]
+        iterator_selector:
+        - '1778489730470'
+        - arr
+        output_selector:
+        - '1778493448729'
+        - text
+        output_type: array[string]
+        parallel_nums: 10
+        selected: false
+        start_node_id: 1778493298135start
+        title: 迭代
+        type: iteration
+        width: 987
+      height: 340
+      id: '1778493298135'
+      position:
+        x: 795.4339714395539
+        y: 296.4665119930533
+      positionAbsolute:
+        x: 795.4339714395539
+        y: 296.4665119930533
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 987
+      zIndex: 1
+    - data:
+        desc: ''
+        isInIteration: true
+        selected: false
+        title: ''
+        type: iteration-start
+      draggable: false
+      height: 48
+      id: 1778493298135start
+      parentId: '1778493298135'
+      position:
+        x: 24
+        y: 68
+      positionAbsolute:
+        x: 819.4339714395539
+        y: 364.4665119930533
+      selectable: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-iteration-start
+      width: 44
+      zIndex: 1002
+    - data:
+        isInIteration: true
+        isInLoop: false
+        is_team_authorization: true
+        iteration_id: '1778493298135'
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: 书籍ID
+            ja_JP: 书籍ID
+            pt_BR: 书籍ID
+            zh_Hans: 书籍ID
+          label:
+            en_US: book_id
+            ja_JP: book_id
+            pt_BR: book_id
+            zh_Hans: book_id
+          llm_description: 书籍ID
+          max: null
+          min: null
+          name: book_id
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: 起始章节（从1开始）
+            ja_JP: 起始章节（从1开始）
+            pt_BR: 起始章节（从1开始）
+            zh_Hans: 起始章节（从1开始）
+          label:
+            en_US: start_chapter
+            ja_JP: start_chapter
+            pt_BR: start_chapter
+            zh_Hans: start_chapter
+          llm_description: 起始章节（从1开始）
+          max: null
+          min: null
+          name: start_chapter
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: null
+          form: form
+          human_description:
+            en_US: 结束章节
+            ja_JP: 结束章节
+            pt_BR: 结束章节
+            zh_Hans: 结束章节
+          label:
+            en_US: end_chapter
+            ja_JP: end_chapter
+            pt_BR: end_chapter
+            zh_Hans: end_chapter
+          llm_description: 结束章节
+          max: null
+          min: null
+          name: end_chapter
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: number
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          label:
+            en_US: item_type
+            ja_JP: item_type
+            pt_BR: item_type
+            zh_Hans: item_type
+          llm_description: ''
+          max: null
+          min: null
+          name: item_type
+          options: []
+          placeholder:
+            en_US: ''
+            ja_JP: ''
+            pt_BR: ''
+            zh_Hans: ''
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: number
+        params:
+          book_id: ''
+          end_chapter: ''
+          item_type: ''
+          start_chapter: ''
+        plugin_id: null
+        plugin_unique_identifier: null
+        provider_icon:
+          background: '#E6F4D7'
+          content: book
+        provider_id: 1f1d0a7c-eedb-446e-be0e-a887b71cd1db
+        provider_name: 获取书库书籍章节内容
+        provider_type: workflow
+        selected: false
+        title: 获取书库书籍章节内容
+        tool_configurations:
+          book_id:
+            type: variable
+            value:
+            - '1778489369227'
+            - book_id
+          end_chapter:
+            type: variable
+            value:
+            - '1778493298135'
+            - item
+          start_chapter:
+            type: variable
+            value:
+            - '1778493298135'
+            - item
+        tool_description: 根据书籍ID、起始章节和结束张杰获取书库书籍相应章节的内容
+        tool_label: 获取书库书籍章节内容
+        tool_name: get_book_chapter_content
+        tool_node_version: '2'
+        tool_parameters:
+          item_type:
+            type: constant
+            value: 1
+        type: tool
+      height: 140
+      id: '1778493422225'
+      parentId: '1778493298135'
+      position:
+        x: 128
+        y: 68
+      positionAbsolute:
+        x: 923.4339714395539
+        y: 364.4665119930533
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1778493298135'
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: bd5d51a4-3d91-438e-a9dc-95f67db242f6
+          role: system
+          text: "你是网文角色形象阶段变化识别专家，根据给定的网文小说章节内容，判断指定角色在本章是否出现稳定的形象阶段变化。\n\n1. 只分析指定角色，不分析其他角色。\n\
+            2. 章节内容第一行为章节标题，请提取 chapter_title。\n3. 提取本章中指定角色与“形象阶段变化”相关的信息，包括：\n \
+            \  - appearance：外貌、发色、瞳色、印记、伤痕、面具等可视化变化；\n   - wear：长期服饰、装束、身份服、战甲等变化；\n\
+            \   - weapon_or_prop：长期武器、法器、饰品、契约兽等变化；\n   - ability_externalization：境界、能力、血脉、瞳术等带来的外显变化；\n\
+            \   - identity_or_status：身份、地位、称号变化带来的长期形象变化；\n   - temperament：气质、压迫感、成熟度等长期变化。\n\
+            4. 严格区分稳定阶段变化和临时场景状态。\n5. 临时动作、表情、心理活动、短期伤势、单场景衣物破损、血迹、泥土、战斗姿态，不应作为阶段底图变化，只能放入\
+            \ temporary_scene_states。\n6. 只有当变化具备连续性、可视化、可复用性，并且会影响后续多章节角色形象一致性时，才判定为阶段变化。\n\
+            7. 所有字段必须给出原文依据，不得脑补，不得编造。\n8. 若某字段原文未提及，则跳过该字段，不得输出“无”“未提及”等占位内容。\n9.\
+            \ 输出必须为合法 JSON，仅返回 JSON，不要其他文字。\n\n输出结构：\n\n{\n  \"角色名\": {\n    \"chapter_title\"\
+            : \"章节标题\",\n    \"stage_change_detected\": true,\n    \"change_level\"\
+            : \"none | temporary_state | suspicious_change | confirmed_change\",\n\
+            \    \"need_official_stage_image\": true,\n    \"stable_visual_changes\"\
+            : {\n      \"appearance\": {\n        \"content\": \"变化内容\",\n       \
+            \ \"evidence\": [\"原文依据\"]\n      },\n      \"wear\": {\n        \"content\"\
+            : \"变化内容\",\n        \"evidence\": [\"原文依据\"]\n      },\n      \"weapon_or_prop\"\
+            : {\n        \"content\": \"变化内容\",\n        \"evidence\": [\"原文依据\"]\n\
+            \      },\n      \"ability_externalization\": {\n        \"content\":\
+            \ \"变化内容\",\n        \"evidence\": [\"原文依据\"]\n      },\n      \"identity_or_status\"\
+            : {\n        \"content\": \"变化内容\",\n        \"evidence\": [\"原文依据\"]\n\
+            \      },\n      \"temperament\": {\n        \"content\": \"变化内容\",\n\
+            \        \"evidence\": [\"原文依据\"]\n      }\n    },\n    \"temporary_scene_states\"\
+            : [\n      {\n        \"type\": \"临时状态类型\",\n        \"content\": \"临时状态内容\"\
+            ,\n        \"evidence\": \"原文依据\",\n        \"reason_not_stage_change\"\
+            : \"不构成阶段变化的原因\"\n      }\n    ],\n    \"stage_image_requirement\": {\n\
+            \      \"suggested_stage_name\": \"建议阶段名\",\n      \"reason\": \"是否需要官方阶段底图及原因\"\
+            ,\n      \"must_reflect\": [\"阶段底图必须体现的内容\"],\n      \"must_not_reflect\"\
+            : [\"阶段底图不应体现的临时状态\"]\n    }\n  }\n}"
+        - id: 5ef97c48-3d8f-45a7-9761-ffd3532fcda1
+          role: user
+          text: '章节内容：{{#1778493422225.text#}}
+
+            指定角色：{{#1778489369227.role_name#}}'
+        selected: false
+        title: LLM 2
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1778493448729'
+      parentId: '1778493298135'
+      position:
+        x: 431.1138212782016
+        y: 68
+      positionAbsolute:
+        x: 1226.5477927177556
+        y: 364.4665119930533
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        code: "\ndef main(text: str):\n    result = \"\"\n    import json\n    try:\n\
+          \        s = json.loads(text.replace(\"```json\", \"\").replace(\"```\"\
+          , \"\"))\n        result = str(s)\n    except Exception as e:\n        result\
+          \ = \"404\"\n    return {\n        \"result\": result\n    }\n"
+        code_language: python3
+        isInIteration: true
+        isInLoop: false
+        iteration_id: '1778493298135'
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 代码执行 2
+        type: code
+        variables:
+        - value_selector:
+          - '1778493448729'
+          - text
+          value_type: string
+          variable: text
+      height: 52
+      id: '1778493979402'
+      parentId: '1778493298135'
+      position:
+        x: 730
+        y: 68
+      positionAbsolute:
+        x: 1525.433971439554
+        y: 364.4665119930533
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+      zIndex: 1002
+    - data:
+        outputs:
+        - value_selector:
+          - '1778493298135'
+          - output
+          value_type: array[string]
+          variable: output
+        selected: false
+        title: 输出
+        type: end
+      height: 88
+      id: '1778494023141'
+      position:
+        x: 1886.5350154864439
+        y: 303
+      positionAbsolute:
+        x: 1886.5350154864439
+        y: 303
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 26.874665175652126
+      y: 191.8937355732428
+      zoom: 0.34504616826791334
+  rag_pipeline_variables: []

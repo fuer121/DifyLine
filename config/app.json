@@ -1,0 +1,12 @@
+{
+  "outputField": "result",
+  "larkIdentity": "bot",
+  "baseNameTemplate": "Dify 工作流结果 {date}",
+  "tableName": "结果表",
+  "difyUser": "local-web-user",
+  "requiredLarkScopes": [
+    "base:app:create",
+    "base:table:create",
+    "base:record:create"
+  ]
+}

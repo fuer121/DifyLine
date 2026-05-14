@@ -1,0 +1,23 @@
+[
+  {
+    "name": "book_id",
+    "label": "book_id",
+    "type": "string",
+    "required": true,
+    "defaultValue": "book_001"
+  },
+  {
+    "name": "start_chapter_index",
+    "label": "start_chapter_index",
+    "type": "integer",
+    "required": true,
+    "defaultValue": 1
+  },
+  {
+    "name": "end_chapter_index",
+    "label": "end_chapter_index",
+    "type": "integer",
+    "required": true,
+    "defaultValue": 50
+  }
+]
