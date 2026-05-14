@@ -46,8 +46,8 @@ function coerceValue(value, type) {
   return value;
 }
 
-export async function runDifyWorkflow({ inputs, outputField, user }) {
-  const { base, key } = getDifyConfig();
+export async function runDifyWorkflow({ inputs, outputField, user, apiKey }) {
+  const { base, key } = getDifyConfig(apiKey);
   const response = await fetch(`${base}/workflows/run`, {
     method: "POST",
     headers: {
@@ -99,4 +99,3 @@ function stripSecrets(value) {
   const text = JSON.stringify(value || {});
   return JSON.parse(text.replace(/(app-|sk-)[A-Za-z0-9_-]+/g, "$1***"));
 }
-
