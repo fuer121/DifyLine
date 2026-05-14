@@ -13,3 +13,15 @@ test("extracts base url and table id recursively", () => {
   assert.equal(getBaseUrl({ data: { base: { url: "https://example.com/base" } } }), "https://example.com/base");
   assert.equal(getTableId({ data: { table: { table_id: "tbl_xxx" } } }), "tbl_xxx");
 });
+
+test("does not confuse field or view ids with table id", () => {
+  assert.equal(
+    getTableId({
+      fields: [{ id: "fld_xxx", name: "标题" }],
+      views: [{ id: "vew_xxx", name: "默认表格" }],
+      table: { id: "tbl_xxx", name: "结果表" }
+    }),
+    "tbl_xxx"
+  );
+  assert.equal(getTableId({ fields: [{ id: "fld_xxx" }] }), null);
+});
