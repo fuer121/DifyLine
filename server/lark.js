@@ -11,7 +11,7 @@ export async function createLarkBaseFromParsed({ parsed, baseName, tableName, id
     throw error;
   }
 
-  const base = await runLark(["base", "+base-create", "--as", identity, "--name", baseName]);
+  const base = await runLarkStep("创建飞书多维表格", ["base", "+base-create", "--as", identity, "--name", baseName]);
   const baseToken = getBaseToken(base);
 
   if (!baseToken) {
@@ -23,7 +23,7 @@ export async function createLarkBaseFromParsed({ parsed, baseName, tableName, id
     throw error;
   }
 
-  const table = await runLark([
+  const table = await runLarkStep("创建数据表", [
     "base",
     "+table-create",
     "--as",
@@ -44,7 +44,7 @@ export async function createLarkBaseFromParsed({ parsed, baseName, tableName, id
   const batches = [];
 
   for (const rows of rowChunks) {
-    const result = await runLark([
+    const result = await runLarkStep("批量写入记录", [
       "base",
       "+record-batch-create",
       "--as",
@@ -74,6 +74,15 @@ export async function createLarkBaseFromParsed({ parsed, baseName, tableName, id
       batches
     }
   };
+}
+
+async function runLarkStep(stage, args) {
+  try {
+    return await runLark(args);
+  } catch (error) {
+    error.message = `飞书${stage}失败：${error.message}`;
+    throw error;
+  }
 }
 
 export async function runLark(args) {
@@ -110,7 +119,7 @@ export function getBaseToken(result) {
 }
 
 export function getTableId(result) {
-  return findFirstKey(result, ["table_id", "tableId", "id"]);
+  return findTableIdInKnownContainers(result) || findFirstTableId(result);
 }
 
 export function getBaseUrl(result) {
@@ -143,6 +152,60 @@ function findFirstKey(value, keys) {
   }
 
   return null;
+}
+
+function findTableIdInKnownContainers(result) {
+  const candidates = [
+    result?.table,
+    result?.data?.table,
+    result?.result?.table,
+    result?.table_info,
+    result?.data?.table_info
+  ];
+
+  for (const candidate of candidates) {
+    const tableId = getTableIdFromObject(candidate, { allowPlainId: true });
+    if (tableId) return tableId;
+  }
+
+  return null;
+}
+
+function findFirstTableId(value) {
+  if (!value || typeof value !== "object") return null;
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findFirstTableId(item);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  const direct = getTableIdFromObject(value);
+  if (direct) return direct;
+
+  for (const item of Object.values(value)) {
+    const found = findFirstTableId(item);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function getTableIdFromObject(value, { allowPlainId = false } = {}) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  for (const key of ["table_id", "tableId"]) {
+    if (isTableId(value[key])) return value[key];
+  }
+
+  if (allowPlainId && isTableId(value.id)) return value.id;
+  return null;
+}
+
+function isTableId(value) {
+  return typeof value === "string" && value.startsWith("tbl");
 }
 
 function summarizeKeys(value) {
