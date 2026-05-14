@@ -1,5 +1,12 @@
 import express from "express";
-import { loadPublicConfig, renderTemplate } from "./config.js";
+import {
+  createWorkflow,
+  deleteWorkflow,
+  getWorkflowById,
+  loadPublicConfig,
+  renderTemplate,
+  updateWorkflow
+} from "./config.js";
 import { createLarkBaseFromParsed } from "./lark.js";
 import { parseWorkflowOutput } from "./mapper.js";
 import { coerceInputs, runDifyWorkflow } from "./workflow.js";
@@ -17,17 +24,42 @@ app.get("/api/config", async (_request, response, next) => {
   }
 });
 
+app.post("/api/workflows", async (request, response, next) => {
+  try {
+    response.status(201).json({ ok: true, workflow: await createWorkflow(request.body) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/workflows/:id", async (request, response, next) => {
+  try {
+    response.json({ ok: true, workflow: await updateWorkflow(request.params.id, request.body) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/workflows/:id", async (request, response, next) => {
+  try {
+    response.json({ ok: true, ...(await deleteWorkflow(request.params.id)) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/workflow/run", async (request, response, next) => {
   try {
-    const publicConfig = await loadPublicConfig();
-    const inputs = coerceInputs(publicConfig.fields, request.body?.inputs || {});
+    const workflow = await getWorkflowById(request.body?.workflowId);
+    const inputs = coerceInputs(workflow.fields, request.body?.inputs || {});
     const result = await runDifyWorkflow({
       inputs,
-      outputField: publicConfig.app.outputField,
-      user: publicConfig.app.difyUser
+      outputField: workflow.outputField,
+      user: workflow.difyUser,
+      apiKey: workflow.apiKey
     });
 
-    response.json({ ok: true, ...result });
+    response.json({ ok: true, workflowId: workflow.id, workflowName: workflow.name, ...result });
   } catch (error) {
     next(error);
   }
@@ -36,9 +68,10 @@ app.post("/api/workflow/run", async (request, response, next) => {
 app.post("/api/lark/base/create", async (request, response, next) => {
   try {
     const publicConfig = await loadPublicConfig();
+    const workflow = await getWorkflowById(request.body?.workflowId);
     const parsed = request.body?.parsed || parseWorkflowOutput(request.body?.rawOutput);
-    const baseName = request.body?.baseName || renderTemplate(publicConfig.app.baseNameTemplate);
-    const tableName = request.body?.tableName || publicConfig.app.tableName;
+    const baseName = request.body?.baseName || renderTemplate(workflow.baseNameTemplate);
+    const tableName = request.body?.tableName || workflow.tableName;
 
     const result = await createLarkBaseFromParsed({
       parsed,
@@ -80,4 +113,3 @@ function sanitizeErrorDetails(details) {
     JSON.stringify(details).replace(/(app-|sk-)[A-Za-z0-9_-]+/g, "$1***")
   );
 }
-
